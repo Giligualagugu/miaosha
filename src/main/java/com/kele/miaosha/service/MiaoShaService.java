@@ -8,9 +8,7 @@ import com.kele.miaosha.entity.OrderInfo;
 import com.kele.miaosha.entity.ProductInfo;
 import com.kele.miaosha.exception.BizRuntimeException;
 import lombok.extern.slf4j.Slf4j;
-import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,11 +29,7 @@ public class MiaoShaService {
 
 
     @Autowired
-    RedissonClient redissonClient;
-
-
-    @Autowired
-    RedisTemplate<String, Object> redisTemplate;
+    RedisTemplate redisTemplate;
 
 
     /**
@@ -120,9 +114,8 @@ public class MiaoShaService {
 
         Long orderCode = snowflake.nextId();
 
-        HashOperations<String, Object, Object> operations = redisTemplate.opsForHash();
 
-        Long current = (Long) operations.get(MiaoShaConstant.MIAOSHA_PREFIX + pid, "stock");
+        Long current = (Long) redisTemplate.opsForValue().get(MiaoShaConstant.MIAOSHA_PREFIX + pid);
 
         if (current == null || current < 1) {
             throw new BizRuntimeException("购买失败...商品已售罄");
@@ -130,7 +123,7 @@ public class MiaoShaService {
 
         if (saveOrder(orderCode, userId, pid)) {
             // 预扣除 redis缓存;
-            Long stock = operations.increment(MiaoShaConstant.MIAOSHA_PREFIX + pid, "stock", -1L);
+            Long stock = redisTemplate.opsForValue().decrement(MiaoShaConstant.MIAOSHA_PREFIX + pid, 1);
             log.info("剩余库存:{}", stock);
         } else {
             throw new BizRuntimeException("订单创建失败...你没有抢到");

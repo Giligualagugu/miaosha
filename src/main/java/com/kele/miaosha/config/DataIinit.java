@@ -13,13 +13,15 @@ public class DataIinit implements InitializingBean {
 
 
     @Autowired
-    RedisTemplate<String, Object> redisTemplate;
+    RedisTemplate redisTemplate;
 
     @Override
     public void afterPropertiesSet() throws Exception {
         log.info("初始化数据....");
-        redisTemplate.opsForHash().put(MiaoShaConstant.MIAOSHA_PREFIX + 1, "stock", 100L);
+        redisTemplate.opsForValue().set(MiaoShaConstant.MIAOSHA_PREFIX + 1, 100L);
     }
+
+
 
 
 }
