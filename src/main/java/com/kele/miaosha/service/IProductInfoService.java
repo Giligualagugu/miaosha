@@ -14,4 +14,6 @@ import com.kele.miaosha.entity.ProductInfo;
 public interface IProductInfoService extends IService<ProductInfo> {
 
     boolean decreaseStock(Integer productId, Integer currentStock);
+
+    void decreaseStock(Integer productId);
 }

@@ -30,4 +30,11 @@ public class ProductInfoServiceImpl extends ServiceImpl<ProductInfoMapper, Produ
                 .eq(ProductInfo::getProductId, productId)
                 .eq(ProductInfo::getStock, currentStock));
     }
+
+    @Transactional
+    @Override
+    public void decreaseStock(Integer productId) {
+        LambdaUpdateWrapper<ProductInfo> wrapper = new LambdaUpdateWrapper<ProductInfo>().setSql("stock=stock-1").eq(ProductInfo::getProductId, productId);
+        update(wrapper);
+    }
 }
