@@ -29,7 +29,7 @@ public class MiaoShaService {
 
 
     @Autowired
-    RedisTemplate redisTemplate;
+    RedisTemplate<String, Long> redisTemplate;
 
 
     /**
@@ -73,13 +73,14 @@ public class MiaoShaService {
     }
 
     private boolean saveOrder(Long orderCode, String userId, Integer productId) {
-        OrderInfo entity = new OrderInfo()
-                .setOrderId(orderCode)
-                .setUserId(userId)
-                .setProductId(productId)
-                .setCreateTime(LocalDateTime.now())
-                .setUpdateTime(LocalDateTime.now());
-        return orderInfoService.save(entity);
+//        OrderInfo entity = new OrderInfo()
+//                .setOrderId(orderCode)
+//                .setUserId(userId)
+//                .setProductId(productId)
+//                .setCreateTime(LocalDateTime.now())
+//                .setUpdateTime(LocalDateTime.now());
+//        return orderInfoService.save(entity);
+        return true;
     }
 
     /**
@@ -115,7 +116,7 @@ public class MiaoShaService {
         Long orderCode = snowflake.nextId();
 
 
-        Long current = (Long) redisTemplate.opsForValue().get(MiaoShaConstant.MIAOSHA_PREFIX + pid);
+        Long current = redisTemplate.opsForValue().get(MiaoShaConstant.MIAOSHA_PREFIX + pid);
 
         if (current == null || current < 1) {
             throw new BizRuntimeException("购买失败...商品已售罄");
@@ -123,7 +124,7 @@ public class MiaoShaService {
 
         if (saveOrder(orderCode, userId, pid)) {
             // 预扣除 redis缓存;
-            Long stock = redisTemplate.opsForValue().decrement(MiaoShaConstant.MIAOSHA_PREFIX + pid, 1);
+            Long stock = redisTemplate.opsForValue().decrement(MiaoShaConstant.MIAOSHA_PREFIX + pid);
             log.info("剩余库存:{}", stock);
         } else {
             throw new BizRuntimeException("订单创建失败...你没有抢到");
