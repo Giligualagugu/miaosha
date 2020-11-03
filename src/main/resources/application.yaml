@@ -14,7 +14,8 @@ spring:
     password: kele1234
 
   redis:
-    host: localhost
+    host: 172.23.20.101
+    #host: localhost
     password: 0192023a7bbd73250516f069df18b500
     database: 3
 mybatis-plus:

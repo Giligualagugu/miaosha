@@ -68,4 +68,11 @@ public class MiaoShaController {
 
         throw new BizRuntimeException("卖完了");
     }
+
+    @GetMapping("/testheader")
+    public KeleResult<String> testHeader(@RequestHeader("kele") String kele) {
+
+        System.out.println(kele);
+        return new KeleResult<>(kele).success();
+    }
 }
